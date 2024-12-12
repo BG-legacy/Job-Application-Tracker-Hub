@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'apps.users',
     'apps.applications',
     'apps.reminders',
+    'apps.ai_insights',
 ]
 
 # Custom user model
