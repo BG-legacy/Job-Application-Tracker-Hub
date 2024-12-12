@@ -56,4 +56,4 @@ A **cutting-edge platform** revolutionizing how job seekers manage their applica
 ## 💻 Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/job-application-tracker-hub.git
+   git clone https://github.com/BG-legacy/job-application-tracker-hub.git
