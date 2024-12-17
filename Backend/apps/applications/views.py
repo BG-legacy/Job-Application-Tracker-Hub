@@ -1,55 +1,40 @@
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
 from .models import Application
 from .serializers import ApplicationSerializer
-from datetime import datetime, timedelta
-from django.utils import timezone
 
-class ApplicationListCreateView(ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
+class ApplicationViewSet(viewsets.ModelViewSet):
     serializer_class = ApplicationSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Application.objects.filter(user=self.request.user)
+        # Filter applications to show only the current user's applications
+        return Application.objects.filter(user=self.request.user).order_by('-date_applied')
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-class ApplicationDetailView(RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = ApplicationSerializer
-    
-    def get_queryset(self):
-        return Application.objects.filter(user=self.request.user)
-
-class DashboardSummaryView(APIView):
-    permission_classes = [IsAuthenticated]
-    
-    def get(self, request):
-        user = request.user
-        applications = Application.objects.filter(user=user)
-        
-        # Get date ranges
-        today = timezone.now().date()
-        week_ago = today - timedelta(days=7)
-        month_ago = today - timedelta(days=30)
-        
-        stats = {
-            "total_applications": applications.count(),
-            "by_status": {
-                "pending": applications.filter(status='Pending').count(),
-                "interviews": applications.filter(status='Interview').count(),
-                "offers": applications.filter(status='Offer').count(),
-                "rejected": applications.filter(status='Rejected').count()
-            },
-            "time_based": {
-                "last_7_days": applications.filter(applied_date__gte=week_ago).count(),
-                "last_30_days": applications.filter(applied_date__gte=month_ago).count(),
-            },
-            "recent_applications": applications.order_by('-applied_date')[:5].values(
-                'company_name', 'job_title', 'status', 'applied_date'
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # Ensure users can only update their own applications
+        if instance.user != request.user:
+            return Response(
+                {"error": "You don't have permission to update this application"},
+                status=status.HTTP_403_FORBIDDEN
             )
-        }
-        return Response(stats) 
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # Ensure users can only delete their own applications
+        if instance.user != request.user:
+            return Response(
+                {"error": "You don't have permission to delete this application"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().destroy(request, *args, **kwargs) 

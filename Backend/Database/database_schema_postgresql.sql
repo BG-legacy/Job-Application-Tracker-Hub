@@ -14,19 +14,41 @@ CREATE TABLE users (
 CREATE INDEX idx_users_email ON users(email);
 
 -- 2. Create Applications Table
-CREATE TABLE applications (
-    application_id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL,
-    company_name VARCHAR(100) NOT NULL,
-    job_title VARCHAR(100) NOT NULL,
-    status VARCHAR(50) DEFAULT 'Pending',
-    applied_date DATE,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+DROP TABLE IF EXISTS applications CASCADE;
+DROP TABLE IF EXISTS applications_application CASCADE;
+
+CREATE TABLE applications_application (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    company_name VARCHAR(255) NOT NULL,
+    position VARCHAR(200) NOT NULL,
+    job_title VARCHAR(255) NOT NULL,
+    job_description TEXT,
+    notes TEXT,
+    status VARCHAR(20) DEFAULT 'Pending' NOT NULL,
+    applied_date DATE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES auth_user(id) ON DELETE CASCADE
 );
 
--- : Add index for status in applications
-CREATE INDEX idx_applications_status ON applications(status);
+-- Add indexes
+CREATE INDEX idx_applications_status ON applications_application(status);
+CREATE INDEX idx_applications_user ON applications_application(user_id);
+
+-- Add trigger for updated_at
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_applications_updated_at
+    BEFORE UPDATE ON applications_application
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
 
 -- 3. Create Reminders Table
 CREATE TABLE reminders (
@@ -80,3 +102,32 @@ WHERE tablename = 'users' OR tablename = 'teams';
 
 -- 9. Verify Password Hashes (optional for debugging)
 SELECT username, password_hash FROM users;
+
+-- Rename columns to match our schema
+ALTER TABLE applications_application 
+    RENAME COLUMN company TO company_name;
+
+ALTER TABLE applications_application 
+    RENAME COLUMN date_applied TO applied_date;
+
+-- Add missing column
+ALTER TABLE applications_application 
+    ADD COLUMN job_title VARCHAR(255);
+
+-- Update column types and constraints
+ALTER TABLE applications_application 
+    ALTER COLUMN company_name TYPE VARCHAR(255),
+    ALTER COLUMN status TYPE VARCHAR(20),
+    ALTER COLUMN status SET DEFAULT 'Pending';
+
+-- Update existing job_title values (if needed)
+UPDATE applications_application 
+SET job_title = 'Not Specified' 
+WHERE job_title IS NULL;
+
+-- Add NOT NULL constraint to job_title after setting default value
+ALTER TABLE applications_application 
+    ALTER COLUMN job_title SET NOT NULL;
+
+-- Verify changes
+\d applications_application
