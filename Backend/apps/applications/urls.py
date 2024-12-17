@@ -1,8 +1,10 @@
-from django.urls import path
-from .views import ApplicationListCreateView, ApplicationDetailView, DashboardSummaryView
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import ApplicationViewSet
+
+router = DefaultRouter()
+router.register(r'applications', ApplicationViewSet, basename='application')
 
 urlpatterns = [
-    path('', ApplicationListCreateView.as_view(), name='application-list-create'),
-    path('<int:pk>/', ApplicationDetailView.as_view(), name='application-detail'),
-    path('dashboard/', DashboardSummaryView.as_view(), name='application-dashboard'),
+    path('', include(router.urls)),
 ] 

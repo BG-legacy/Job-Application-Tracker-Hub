@@ -1,4 +1,3 @@
-
 import api from './api';
 
 export const authService = {
@@ -21,8 +20,16 @@ export const authService = {
                 localStorage.setItem('token', response.data.token);
                 return response.data;
             }
+            throw new Error('Registration successful but no token received');
         } catch (error) {
-            throw error.response?.data || { message: 'Registration failed' };
+            if (error.response?.data) {
+                // Handle structured error response
+                const errorMessage = Object.entries(error.response.data)
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join('\n');
+                throw new Error(errorMessage);
+            }
+            throw new Error('Registration failed');
         }
     },
 
