@@ -1,40 +1,66 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import api from '../../services/api';
 import ApplicationModal from './ApplicationModal';
+import ApplicationFilters from './ApplicationFilters';
+import { formatDate, displayDate } from '../../utils/dateUtils';
 
 const ApplicationList = () => {
     const [applications, setApplications] = useState([]);
-    const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedApplication, setSelectedApplication] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [searchParams] = useSearchParams();
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [isSearchPanelOpen, setIsSearchPanelOpen] = useState(false);
+    const searchPanelRef = useRef(null);
 
     useEffect(() => {
-        fetchApplications();
+        const handleClickOutside = (event) => {
+            if (searchPanelRef.current && !searchPanelRef.current.contains(event.target)) {
+                setIsSearchPanelOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
     }, []);
 
-    const fetchApplications = async () => {
+    const fetchApplications = async (params) => {
         try {
-            const response = await api.get('applications/');
+            const queryString = params.toString();
+            const response = await api.get(`applications/${queryString ? `?${queryString}` : ''}`);
             setApplications(response.data);
         } catch (error) {
             console.error('Error fetching applications:', error);
         }
     };
 
-    // Get days in month
+    useEffect(() => {
+        fetchApplications(searchParams);
+    }, [searchParams]);
+
+    const handleFilterChange = (newParams) => {
+        fetchApplications(newParams);
+    };
+
     const getDaysInMonth = (date) => {
         return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
     };
 
-    // Get first day of month (0 = Sunday, 1 = Monday, etc.)
     const getFirstDayOfMonth = (date) => {
         return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
     };
 
-    // Group applications by date
-    const getApplicationsByDate = (date) => {
+    const getMonthName = (date) => {
+        return new Intl.DateTimeFormat('en-US', { month: 'long' }).format(date);
+    };
+
+    const getApplicationsForDate = (date) => {
         return applications.filter(app => {
+            if (!app.date_applied) return false;
+            
             const appDate = new Date(app.date_applied);
             return appDate.getDate() === date &&
                    appDate.getMonth() === currentDate.getMonth() &&
@@ -42,41 +68,41 @@ const ApplicationList = () => {
         });
     };
 
-    // Navigate between months
-    const changeMonth = (increment) => {
-        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + increment, 1));
+    const handlePrevMonth = () => {
+        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1));
     };
 
-    const handleApplicationClick = (application) => {
-        setSelectedApplication(application);
-        setIsModalOpen(true);
+    const handleNextMonth = () => {
+        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1));
     };
 
-    // Generate calendar grid
     const renderCalendar = () => {
         const daysInMonth = getDaysInMonth(currentDate);
-        const firstDayOfMonth = getFirstDayOfMonth(currentDate);
+        const firstDay = getFirstDayOfMonth(currentDate);
         const days = [];
 
         // Add empty cells for days before the first day of the month
-        for (let i = 0; i < firstDayOfMonth; i++) {
+        for (let i = 0; i < firstDay; i++) {
             days.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
         }
 
         // Add cells for each day of the month
         for (let day = 1; day <= daysInMonth; day++) {
-            const appsForDay = getApplicationsByDate(day);
+            const dayApplications = getApplicationsForDate(day);
             days.push(
                 <div key={day} className="calendar-day">
                     <div className="day-number">{day}</div>
                     <div className="day-applications">
-                        {appsForDay.map(app => (
+                        {dayApplications.map(app => (
                             <div 
-                                key={app.id} 
-                                className={`application-item status-${app.status.toLowerCase()}`}
-                                onClick={() => handleApplicationClick(app)}
+                                key={app.id}
+                                className={`application-tag status-${app.status.toLowerCase()}`}
+                                onClick={() => {
+                                    setSelectedApplication(app);
+                                    setIsModalOpen(true);
+                                }}
                             >
-                                <span>{app.company_name} - {app.position}</span>
+                                {app.company_name} - {app.job_title}
                             </div>
                         ))}
                     </div>
@@ -88,25 +114,40 @@ const ApplicationList = () => {
     };
 
     return (
-        <div className="calendar-view">
-            <div className="calendar-header">
-                <button onClick={() => changeMonth(-1)}>&lt;</button>
-                <h2>
-                    {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
-                </h2>
-                <button onClick={() => changeMonth(1)}>&gt;</button>
+        <div className="applications-container">
+            <div className={`search-panel ${isSearchPanelOpen ? 'open' : ''}`} ref={searchPanelRef}>
+                <div className="search-panel-content">
+                    <h3>Search Applications</h3>
+                    <ApplicationFilters onFilterChange={handleFilterChange} />
+                </div>
             </div>
-            <Link to="/applications/new" className="add-button">
-                Add New Application
-            </Link>
+
+            <div className="calendar-controls">
+                <div className="calendar-header">
+                    <button className="month-nav" onClick={handlePrevMonth}>{"<"}</button>
+                    <h2>{getMonthName(currentDate)} {currentDate.getFullYear()}</h2>
+                    <button className="month-nav" onClick={handleNextMonth}>{">"}</button>
+                </div>
+                <div className="action-buttons">
+                    <Link to="/applications/new" className="add-button">
+                        Add New Application
+                    </Link>
+                    <button 
+                        className="search-button"
+                        onClick={() => setIsSearchPanelOpen(!isSearchPanelOpen)}
+                    >
+                        Search Applications
+                    </button>
+                </div>
+            </div>
             <div className="calendar-grid">
-                <div className="weekday">Sun</div>
-                <div className="weekday">Mon</div>
-                <div className="weekday">Tue</div>
-                <div className="weekday">Wed</div>
-                <div className="weekday">Thu</div>
-                <div className="weekday">Fri</div>
-                <div className="weekday">Sat</div>
+                <div className="weekday-header">Sun</div>
+                <div className="weekday-header">Mon</div>
+                <div className="weekday-header">Tue</div>
+                <div className="weekday-header">Wed</div>
+                <div className="weekday-header">Thu</div>
+                <div className="weekday-header">Fri</div>
+                <div className="weekday-header">Sat</div>
                 {renderCalendar()}
             </div>
 

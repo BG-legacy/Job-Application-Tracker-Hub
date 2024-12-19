@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -20,7 +21,7 @@ class Application(models.Model):
     job_description = models.TextField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
-    date_applied = models.DateField()
+    date_applied = models.DateField(default=timezone.now)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -30,3 +31,12 @@ class Application(models.Model):
 
     def __str__(self):
         return f"{self.company_name} - {self.position}" 
+
+    def save(self, *args, **kwargs):
+        # Ensure date_applied is a date object
+        if isinstance(self.date_applied, str):
+            try:
+                self.date_applied = timezone.datetime.strptime(self.date_applied, '%Y-%m-%d').date()
+            except ValueError:
+                self.date_applied = timezone.now().date()
+        super().save(*args, **kwargs)

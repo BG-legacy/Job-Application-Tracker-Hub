@@ -1,22 +1,25 @@
 // frontend/src/services/api.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api/';
-
 const api = axios.create({
-    baseURL: API_URL,
+    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000/api',
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-// Automatically adds the token to all requests
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Token ${token}`;
+// Add request interceptor to include auth token
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Token ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
     }
-    return config;
-});
+);
 
 export default api;
