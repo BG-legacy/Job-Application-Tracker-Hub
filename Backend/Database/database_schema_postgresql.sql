@@ -26,7 +26,7 @@ CREATE TABLE applications_application (
     job_description TEXT,
     notes TEXT,
     status VARCHAR(20) DEFAULT 'Pending' NOT NULL,
-    applied_date DATE NOT NULL,
+    date_applied DATE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     FOREIGN KEY (user_id) REFERENCES auth_user(id) ON DELETE CASCADE
@@ -91,6 +91,11 @@ CREATE TABLE team_members (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+-- Add unique constraint to prevent duplicate memberships
+ALTER TABLE team_members 
+ADD CONSTRAINT unique_team_member 
+UNIQUE (team_id, user_id);
+
 -- 7. Insert Example Data with Password Hashing
 INSERT INTO users (username, email, password_hash)
 VALUES ('john_doe', 'john@example.com', crypt('password123', gen_salt('bf')));
@@ -131,3 +136,6 @@ ALTER TABLE applications_application
 
 -- Verify changes
 \d applications_application
+
+-- Remove shared_with_team column
+ALTER TABLE applications_application DROP COLUMN IF EXISTS shared_with_team;
