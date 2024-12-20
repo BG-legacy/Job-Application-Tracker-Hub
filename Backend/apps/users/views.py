@@ -108,3 +108,11 @@ def update_avatar(request):
         })
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_users(request):
+    """List all users except the requesting user"""
+    users = User.objects.exclude(id=request.user.id)
+    serializer = UserBasicSerializer(users, many=True)
+    return Response(serializer.data)
