@@ -28,7 +28,7 @@ INSTALLED_APPS = [
     'apps.reminders',
     'apps.ai_insights',
     'django_filters',
-   
+    'apps.teams',
 ]
 
 # Custom user model

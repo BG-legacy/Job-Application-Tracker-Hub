@@ -12,8 +12,10 @@ urlpatterns = [
         path('', include('apps.applications.urls')),
         path('ai-insights/', include('apps.ai_insights.urls')),
         path('users/', include('apps.users.urls')),
+        path('teams/', include('apps.teams.urls')),
     ])),
     path('api/ai/', include('apps.ai_insights.urls')),
+    path('api/teams/', include('apps.teams.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) \
   + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
