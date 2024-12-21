@@ -3,7 +3,6 @@ import { Link, useSearchParams } from 'react-router-dom';
 import api from '../../services/api';
 import ApplicationModal from './ApplicationModal';
 import ApplicationFilters from './ApplicationFilters';
-import { formatDate, displayDate } from '../../utils/dateUtils';
 
 const ApplicationList = () => {
     const [applications, setApplications] = useState([]);

@@ -19,11 +19,6 @@ class Migration(migrations.Migration):
                     name='position',
                     field=models.CharField(max_length=200),
                 ),
-                migrations.AddField(
-                    model_name='application',
-                    name='notes',
-                    field=models.TextField(),
-                ),
             ],
         ),
     ]
