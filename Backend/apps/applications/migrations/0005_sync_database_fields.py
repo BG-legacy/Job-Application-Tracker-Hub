@@ -6,22 +6,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Rename company to company_name
+        # Rename company to company_name (only if needed)
         migrations.RenameField(
             model_name='application',
             old_name='company',
             new_name='company_name',
         ),
 
-        # Add job_title field if missing
-        migrations.AddField(
-            model_name='application',
-            name='job_title',
-            field=models.CharField(default='Not Specified', max_length=255),
-            preserve_default=False,
-        ),
-
-        # Update field types
+        # Remove the job_title addition since it already exists
         migrations.AlterField(
             model_name='application',
             name='company_name',

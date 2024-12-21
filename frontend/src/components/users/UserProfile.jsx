@@ -3,7 +3,7 @@ import { userService } from '../../services/userService';
 import { applicationService } from '../../services/applicationService';
 import defaultAvatar from '../../assets/default-avatar.svg';
 import '../../styles/users/UserProfile.css';
-import { formatDate, getRelativeTimeString } from '../../utils/dateUtils';
+import { formatDate } from '../../utils/dateUtils';
 
 const AVATAR_OPTIONS = [
     '/avatars/professional-1.svg',

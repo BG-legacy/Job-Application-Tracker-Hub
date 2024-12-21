@@ -14,9 +14,4 @@ class Migration(migrations.Migration):
             name="job_description",
             field=models.TextField(blank=True, null=True),
         ),
-        migrations.AlterField(
-            model_name="application",
-            name="notes",
-            field=models.TextField(blank=True, null=True),
-        ),
     ]
