@@ -2,8 +2,10 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Team, TeamMember, TeamTip
 from apps.users.serializers import UserBasicSerializer
+import logging
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,6 +29,16 @@ class TeamSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'created_by', 'created_by_details', 
                  'created_at', 'members']
         read_only_fields = ['created_by', 'created_at']
+
+    def create(self, validated_data):
+        logger.debug(f"Creating team with data: {validated_data}")
+        try:
+            team = super().create(validated_data)
+            logger.debug(f"Team created successfully: {team}")
+            return team
+        except Exception as e:
+            logger.error(f"Error in create method: {str(e)}")
+            raise
 
 class TeamTipSerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source='author.username', read_only=True)
