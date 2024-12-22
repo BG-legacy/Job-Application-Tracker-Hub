@@ -15,6 +15,8 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from apps.ai_insights.services.analysis_service import AIAnalysisService
 import logging
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 User = get_user_model()
 
@@ -122,7 +124,18 @@ class TeamViewSet(viewsets.ModelViewSet):
         elif request.method == 'POST':
             serializer = TeamTipSerializer(data=request.data, context={'request': request})
             if serializer.is_valid():
-                serializer.save(team=team, author=request.user)
+                tip = serializer.save(team=team, author=request.user)
+                
+                # Broadcast the new tip to all connected clients
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f'team_{team.id}',
+                    {
+                        'type': 'tip_update',
+                        'tip': TeamTipSerializer(tip).data
+                    }
+                )
+                
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
