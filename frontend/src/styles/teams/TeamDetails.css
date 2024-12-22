@@ -213,4 +213,48 @@
 
 .upvote-count {
     font-weight: 500;
+}
+
+.connection-status {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    z-index: 1000;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.connection-status.connected .status-indicator {
+    background-color: #4CAF50;
+}
+
+.connection-status.disconnected .status-indicator {
+    background-color: #f44336;
+}
+
+.connection-status.error .status-indicator {
+    background-color: #ff9800;
+}
+
+.connection-status.connecting .status-indicator {
+    background-color: #2196F3;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
 } 
