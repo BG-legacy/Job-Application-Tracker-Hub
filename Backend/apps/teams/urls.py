@@ -17,6 +17,11 @@ urlpatterns = [
              'patch': 'update_member_role',
          }), 
          name='team-member-detail'),
+    path('<int:pk>/tips/<int:tip_id>/upvote/', 
+         TeamViewSet.as_view({
+             'post': 'upvote_tip',
+         }), 
+         name='team-tip-upvote'),
 ]
 
 logger.debug(f"Generated URL patterns: {router.urls}")

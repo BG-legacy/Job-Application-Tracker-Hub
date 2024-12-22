@@ -83,4 +83,24 @@
 .error-message {
     color: #dc3545;
     margin-bottom: 1rem;
+}
+
+.manage-team-btn {
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.manage-team-btn:hover {
+    background-color: #0056b3;
+}
+
+.team-card-actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
 } 

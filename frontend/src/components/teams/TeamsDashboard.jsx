@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import './TeamsDashboard.css';
 
@@ -8,6 +9,7 @@ const TeamsDashboard = () => {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [newTeamData, setNewTeamData] = useState({ name: '', description: '' });
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchTeams();
@@ -15,25 +17,20 @@ const TeamsDashboard = () => {
 
     const fetchTeams = async () => {
         try {
-            console.log('Fetching teams...');
             setLoading(true);
             const response = await api.get('/teams/');
-            console.log('Teams response:', response.data);
-            const teamsData = response.data.results || response.data || [];
-            console.log('Processed teams data:', teamsData);
-            setTeams(teamsData);
+            setTeams(response.data.results || response.data);
+            setLoading(false);
         } catch (err) {
             console.error('Error fetching teams:', err);
-            console.error('Error details:', {
-                message: err.message,
-                response: err.response,
-                status: err.response?.status
-            });
             setError('Failed to fetch teams');
             setTeams([]);
-        } finally {
             setLoading(false);
         }
+    };
+
+    const handleManageTeam = (teamId) => {
+        navigate(`/teams/${teamId}`);
     };
 
     const handleCreateTeam = async (e) => {
@@ -57,15 +54,6 @@ const TeamsDashboard = () => {
         }
     };
 
-    const handleManageMembers = async (teamId) => {
-        try {
-            console.log('Managing members for team:', teamId);
-        } catch (err) {
-            setError('Failed to manage team members');
-            console.error('Error managing team members:', err);
-        }
-    };
-
     return (
         <div className="teams-dashboard">
             <div className="teams-header">
@@ -74,7 +62,7 @@ const TeamsDashboard = () => {
                     className="create-team-btn"
                     onClick={() => setShowCreateModal(true)}
                 >
-                    Create Team
+                    Create New Team
                 </button>
             </div>
 
@@ -89,12 +77,12 @@ const TeamsDashboard = () => {
                             <div key={team.id} className="team-card">
                                 <h3>{team.name}</h3>
                                 <p>{team.description}</p>
-                                <div className="team-stats">
-                                    <span>{team.members?.length || 0} members</span>
-                                </div>
-                                <div className="team-actions">
-                                    <button onClick={() => handleManageMembers(team.id)}>
-                                        Manage Members
+                                <div className="team-card-actions">
+                                    <button 
+                                        className="manage-team-btn"
+                                        onClick={() => handleManageTeam(team.id)}
+                                    >
+                                        Manage Team
                                     </button>
                                 </div>
                             </div>
