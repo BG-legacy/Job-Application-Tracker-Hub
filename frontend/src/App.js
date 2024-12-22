@@ -9,6 +9,8 @@ import ApplicationForm from './components/applications/ApplicationForm';
 import ApplicationEditForm from './components/applications/ApplicationEditForm';
 import AIRecommendations from './components/insights/AIRecommendations';
 import UserProfile from './components/users/UserProfile';
+import TeamsDashboard from './components/teams/TeamsDashboard';
+import TeamDetails from './components/teams/TeamDetails';
 import './App.css';
 
 function App() {
@@ -71,6 +73,24 @@ function App() {
                                 <ProtectedRoute>
                                     <Navigation />
                                     <UserProfile />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/teams"
+                            element={
+                                <ProtectedRoute>
+                                    <Navigation />
+                                    <TeamsDashboard />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/teams/:teamId"
+                            element={
+                                <ProtectedRoute>
+                                    <Navigation />
+                                    <TeamDetails />
                                 </ProtectedRoute>
                             }
                         />

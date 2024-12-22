@@ -24,8 +24,10 @@ class TeamViewSet(viewsets.ModelViewSet):
     serializer_class = TeamSerializer
     permission_classes = [IsTeamAdminOrReadOnly]
     queryset = Team.objects.all()
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
+        logger.debug("Getting queryset for user: %s", self.request.user)
         return Team.objects.filter(members__user=self.request.user)
 
     def perform_create(self, serializer):
@@ -270,3 +272,38 @@ class TeamViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def create(self, request, *args, **kwargs):
+        logger.debug("Create method called with data: %s", request.data)
+        logger.debug("Request method: %s", request.method)
+        
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                team = serializer.save(created_by=request.user)
+                logger.debug("Team created: %s", team)
+                
+                TeamMember.objects.create(
+                    team=team,
+                    user=request.user,
+                    role='Admin'
+                )
+                
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                logger.error("Error creating team: %s", str(e))
+                return Response(
+                    {'error': str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        
+        logger.error("Serializer errors: %s", serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_permissions(self):
+        logger.debug(f"Checking permissions for {self.action} action")
+        return super().get_permissions()
+
+    def initial(self, request, *args, **kwargs):
+        logger.debug(f"Initial method called for {request.method} request")
+        super().initial(request, *args, **kwargs)

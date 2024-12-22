@@ -39,6 +39,9 @@ const Navigation = () => {
                     <Link to="/applications" className={location.pathname === '/applications' ? 'active' : ''}>
                         Applications
                     </Link>
+                    <Link to="/teams" className={location.pathname === '/teams' ? 'active' : ''}>
+                        Teams
+                    </Link>
                     <Link to="/insights" className={location.pathname === '/insights' ? 'active' : ''}>
                         Insights
                     </Link>
