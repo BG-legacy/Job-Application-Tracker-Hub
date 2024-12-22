@@ -148,7 +148,7 @@ class TeamViewSet(viewsets.ModelViewSet):
     def progress(self, request, pk=None):
         """Fetch collective team progress data"""
         team = self.get_object()
-        team_members = team.team_members.values_list('user_id', flat=True)
+        team_members = team.members.values_list('user_id', flat=True)
         
         # Get date range (last 30 days)
         end_date = timezone.now().date()
@@ -307,3 +307,22 @@ class TeamViewSet(viewsets.ModelViewSet):
     def initial(self, request, *args, **kwargs):
         logger.debug(f"Initial method called for {request.method} request")
         super().initial(request, *args, **kwargs)
+
+    @action(detail=True, methods=['post'], url_path='tips/(?P<tip_id>[^/.]+)/upvote')
+    def upvote_tip(self, request, pk=None, tip_id=None):
+        """Handle upvoting/un-upvoting a team tip"""
+        team = self.get_object()
+        tip = get_object_or_404(TeamTip, id=tip_id, team=team)
+        
+        if tip.upvotes.filter(id=request.user.id).exists():
+            tip.upvotes.remove(request.user)
+            action = 'removed'
+        else:
+            tip.upvotes.add(request.user)
+            action = 'added'
+        
+        serializer = TeamTipSerializer(tip, context={'request': request})
+        return Response({
+            'message': f'Upvote {action}',
+            'tip': serializer.data
+        })
