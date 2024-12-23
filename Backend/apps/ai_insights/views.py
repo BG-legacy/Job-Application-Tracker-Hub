@@ -119,12 +119,16 @@ class AIRecommendationsView(APIView):
             analysis_service = AIAnalysisService()
             insights = analysis_service.analyze_application_trends(request.user)
             
+            # Ensure we're returning the correct format
+            recommendations = insights.get('recommendations', '')
+            metrics = insights.get('metrics', {})
+            
             return Response({
-                'recommendations': insights['recommendations'],
+                'recommendations': recommendations,
                 'metrics': {
-                    'response_rate': insights['metrics']['response_rate'],
-                    'interview_conversion': insights['metrics']['interview_conversion'],
-                    'success_rate': insights['metrics']['success_rate']
+                    'response_rate': metrics.get('response_rate', 0),
+                    'interview_rate': metrics.get('interview_rate', 0),
+                    'success_rate': metrics.get('success_rate', 0)
                 }
             })
         except Exception as e:
