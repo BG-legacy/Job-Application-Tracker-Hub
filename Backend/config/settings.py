@@ -29,8 +29,6 @@ INSTALLED_APPS = [
     'apps.ai_insights',
     'django_filters',
     'apps.teams',
-    'channels',
-    'channels_redis',
 ]
 
 # Custom user model
@@ -174,13 +172,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 #     user1_avatar.jpg
 #     user2_avatar.png
 #     etc...
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
-    }
-}
-
-# Update ASGI application
-ASGI_APPLICATION = 'config.asgi.application'
 

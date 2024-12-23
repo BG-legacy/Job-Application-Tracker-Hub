@@ -13,7 +13,7 @@ const AIRecommendations = () => {
 
     const fetchRecommendations = async () => {
         try {
-            const response = await api.get('/ai/recommendations/');
+            const response = await api.get('/ai-insights/recommendations/');
             setRecommendations(response.data);
             setLoading(false);
         } catch (err) {
@@ -23,26 +23,38 @@ const AIRecommendations = () => {
         }
     };
 
-    if (loading) return <div className="loading">Loading recommendations...</div>;
+    // Format percentage with 1 decimal place and handle edge cases
+    const formatPercentage = (value) => {
+        if (value === null || value === undefined || isNaN(value)) {
+            return '0.0%';
+        }
+        return `${(value * 100).toFixed(1)}%`;
+    };
+
+    if (loading) return <div>Loading...</div>;
     if (error) return <div className="error">{error}</div>;
     if (!recommendations) return null;
 
     return (
-        <div className="ai-recommendations">
-            <div className="metrics-section">
-                <h2>Application Metrics</h2>
-                <div className="metrics-grid">
-                    <div className="metric-card">
-                        <h3>Response Rate</h3>
-                        <p>{(recommendations.metrics.response_rate * 100).toFixed(1)}%</p>
+        <div className="recommendations-container">
+            <h2>Application Metrics</h2>
+            <div className="metrics-grid">
+                <div className="metric-card">
+                    <h3>Response Rate</h3>
+                    <div className="metric-value">
+                        {formatPercentage(recommendations.metrics.response_rate)}
                     </div>
-                    <div className="metric-card">
-                        <h3>Interview Success</h3>
-                        <p>{(recommendations.metrics.interview_conversion * 100).toFixed(1)}%</p>
+                </div>
+                <div className="metric-card">
+                    <h3>Interview Success</h3>
+                    <div className="metric-value">
+                        {formatPercentage(recommendations.metrics.interview_rate)}
                     </div>
-                    <div className="metric-card">
-                        <h3>Overall Success</h3>
-                        <p>{(recommendations.metrics.success_rate * 100).toFixed(1)}%</p>
+                </div>
+                <div className="metric-card">
+                    <h3>Overall Success</h3>
+                    <div className="metric-value">
+                        {formatPercentage(recommendations.metrics.success_rate)}
                     </div>
                 </div>
             </div>

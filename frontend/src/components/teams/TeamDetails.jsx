@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { Bar } from 'react-chartjs-2';
 import api from '../../services/api';
@@ -31,8 +31,6 @@ const TeamDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [newTip, setNewTip] = useState('');
-    const wsRef = useRef(null);
-    const [wsStatus, setWsStatus] = useState('connecting');
 
     const fetchTips = useCallback(async () => {
         try {
@@ -65,107 +63,11 @@ const TeamDetails = () => {
         fetchTeamData();
     }, [fetchTeamData]);
 
-    useEffect(() => {
-        let ws = null;
-        let reconnectTimer = null;
-        let heartbeatInterval = null;
-
-        const connectWebSocket = () => {
-            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsHost = process.env.REACT_APP_WS_HOST || window.location.host;
-            const wsUrl = `${wsProtocol}//${wsHost}/ws/teams/${teamId}/`;
-            
-            console.log('Connecting to WebSocket:', wsUrl);
-            
-            ws = new WebSocket(wsUrl);
-            wsRef.current = ws;
-
-            ws.onopen = () => {
-                console.log('WebSocket connected successfully');
-                setWsStatus('connected');
-                
-                // Start heartbeat
-                heartbeatInterval = setInterval(() => {
-                    if (ws.readyState === WebSocket.OPEN) {
-                        ws.send(JSON.stringify({ type: 'ping' }));
-                    }
-                }, 30000); // Send heartbeat every 30 seconds
-                
-                if (reconnectTimer) {
-                    clearTimeout(reconnectTimer);
-                    reconnectTimer = null;
-                }
-            };
-
-            ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                console.log('Received WebSocket message:', data);
-                
-                if (data.type === 'pong') {
-                    console.log('Heartbeat received');
-                } else if (data.type === 'tip_update') {
-                    // Handle tip updates
-                    setTips(prevTips => {
-                        const updatedTips = [...prevTips];
-                        const index = updatedTips.findIndex(t => t.id === data.tip.id);
-                        if (index !== -1) {
-                            updatedTips[index] = data.tip;
-                        } else {
-                            updatedTips.push(data.tip);
-                        }
-                        return updatedTips.sort((a, b) => b.upvote_count - a.upvote_count);
-                    });
-                }
-            };
-
-            ws.onclose = (event) => {
-                console.log('WebSocket closed:', event);
-                setWsStatus('connecting');
-                
-                if (heartbeatInterval) {
-                    clearInterval(heartbeatInterval);
-                }
-                
-                if (!event.wasClean) {
-                    reconnectTimer = setTimeout(() => {
-                        console.log('Attempting to reconnect...');
-                        connectWebSocket();
-                    }, 3000);
-                }
-            };
-
-            ws.onerror = (error) => {
-                console.error('WebSocket error:', error);
-                setWsStatus('error');
-            };
-        };
-
-        connectWebSocket();
-
-        return () => {
-            if (ws) {
-                ws.close();
-            }
-            if (reconnectTimer) {
-                clearTimeout(reconnectTimer);
-            }
-            if (heartbeatInterval) {
-                clearInterval(heartbeatInterval);
-            }
-        };
-    }, [teamId]);
-
     const handleUpvote = async (tipId) => {
         try {
-            const response = await api.post(`/teams/${teamId}/tips/${tipId}/upvote/`);
-            
-            // Send WebSocket update
-            if (wsRef.current?.readyState === WebSocket.OPEN) {
-                wsRef.current.send(JSON.stringify({
-                    type: 'tip_update',
-                    tip: response.data.tip
-                }));
-            }
+            await api.post(`/teams/${teamId}/tips/${tipId}/upvote/`);
+            // Refresh tips after upvoting
+            await fetchTips();
         } catch (error) {
             console.error('Error upvoting tip:', error);
         }
@@ -176,24 +78,15 @@ const TeamDetails = () => {
         if (!newTip.trim()) return;
 
         try {
-            const response = await api.post(`/teams/${teamId}/tips/`, {
+            await api.post(`/teams/${teamId}/tips/`, {
                 content: newTip
             });
             
-            if (wsRef.current) {
-                wsRef.current.send(JSON.stringify({
-                    type: 'tip_update',
-                    tip: response.data
-                }));
-            }
-            
-            // Add the new tip to the list and sort by upvotes
-            setTips(prevTips => [...prevTips, response.data]
-                .sort((a, b) => b.upvote_count - a.upvote_count));
             setNewTip('');
-        } catch (err) {
-            console.error('Error adding tip:', err);
-            setError('Failed to add tip');
+            // Refresh tips after adding new one
+            await fetchTips();
+        } catch (error) {
+            console.error('Error adding tip:', error);
         }
     };
 
@@ -299,11 +192,6 @@ const TeamDetails = () => {
                     ))}
                 </div>
             </section>
-
-            <div className={`connection-status ${wsStatus}`}>
-                <span className="status-indicator"></span>
-                {wsStatus === 'connected' ? 'Live Updates Active' : 'Connecting...'}
-            </div>
         </div>
     );
 };
