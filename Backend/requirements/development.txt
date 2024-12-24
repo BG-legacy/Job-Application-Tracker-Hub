@@ -10,3 +10,5 @@ flake8==6.1.0
 
 # Documentation
 drf-spectacular==0.26.5 
+scikit-learn>=1.0.2
+numpy>=1.21.0
