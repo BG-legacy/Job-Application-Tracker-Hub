@@ -17,5 +17,6 @@ urlpatterns = [
     path('api/', include('apps.teams.urls')),
     path('api/ai/', include('apps.ai_insights.urls')),
     path('api/teams/', include('apps.teams.urls')),
+    path('api/data_exchange/', include('apps.data_exchange.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) \
   + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
