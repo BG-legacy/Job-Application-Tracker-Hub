@@ -50,7 +50,9 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / 'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -172,4 +174,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 #     user1_avatar.jpg
 #     user2_avatar.png
 #     etc...
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Or your SMTP server
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@example.com'
+EMAIL_HOST_PASSWORD = 'your-app-specific-password'
+DEFAULT_FROM_EMAIL = 'Job Tracker <no-reply@jobtracker.com>'
 
