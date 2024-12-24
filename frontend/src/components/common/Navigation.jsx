@@ -45,6 +45,12 @@ const Navigation = () => {
                     <Link to="/insights" className={location.pathname === '/insights' ? 'active' : ''}>
                         Insights
                     </Link>
+                    <Link 
+                        to="/data" 
+                        className={`nav-link ${location.pathname === '/data' ? 'active' : ''}`}
+                    >
+                        Import/Export
+                    </Link>
                 </div>
 
                 <div className="nav-right">

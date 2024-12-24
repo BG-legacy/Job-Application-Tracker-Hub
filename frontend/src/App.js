@@ -11,6 +11,7 @@ import AIRecommendations from './components/insights/AIRecommendations';
 import UserProfile from './components/users/UserProfile';
 import TeamsDashboard from './components/teams/TeamsDashboard';
 import TeamDetails from './components/teams/TeamDetails';
+import DataExchangePanel from './components/data/DataExchangePanel';
 import './App.css';
 
 function App() {
@@ -91,6 +92,15 @@ function App() {
                                 <ProtectedRoute>
                                     <Navigation />
                                     <TeamDetails />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/data"
+                            element={
+                                <ProtectedRoute>
+                                    <Navigation />
+                                    <DataExchangePanel />
                                 </ProtectedRoute>
                             }
                         />
