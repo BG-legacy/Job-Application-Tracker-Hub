@@ -1,77 +1,80 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
+import { aiInsightService } from '../../services/aiInsightService';
 import '../../styles/insights/AIRecommendations.css';
 
 const AIRecommendations = () => {
-    const [recommendations, setRecommendations] = useState(null);
+    const [insights, setInsights] = useState({
+        recommendations: '',
+        metrics: {
+            response_rate: 0,
+            interview_rate: 0,
+            success_rate: 0,
+            market_alignment: 0
+        }
+    });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetchRecommendations();
+        fetchInsights();
     }, []);
 
-    const fetchRecommendations = async () => {
+    const fetchInsights = async () => {
         try {
-            const response = await api.get('/ai-insights/recommendations/');
-            setRecommendations(response.data);
+            const response = await aiInsightService.getRecommendations();
+            setInsights({
+                recommendations: response.data.recommendations || '',
+                metrics: {
+                    response_rate: response.data.metrics?.response_rate || 0,
+                    interview_rate: response.data.metrics?.interview_rate || 0,
+                    success_rate: response.data.metrics?.success_rate || 0,
+                    market_alignment: response.data.metrics?.market_alignment || 0
+                }
+            });
             setLoading(false);
         } catch (err) {
-            console.error('Error fetching recommendations:', err);
             setError('Failed to fetch AI recommendations');
             setLoading(false);
         }
     };
 
-    // Format percentage with 1 decimal place and handle edge cases
-    const formatPercentage = (value) => {
-        if (value === null || value === undefined || isNaN(value)) {
-            return '0.0%';
-        }
-        return `${(value * 100).toFixed(1)}%`;
+    const formatMetric = (value) => {
+        return typeof value === 'number' ? value.toFixed(1) : '0.0';
     };
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <div className="loading">Loading insights...</div>;
     if (error) return <div className="error">{error}</div>;
-    if (!recommendations) return null;
 
     return (
-        <div className="recommendations-container">
-            <h2>Application Metrics</h2>
-            <div className="metrics-grid">
-                <div className="metric-card">
-                    <h3>Response Rate</h3>
-                    <div className="metric-value">
-                        {formatPercentage(recommendations.metrics.response_rate)}
+        <div className="ai-recommendations">
+            <h2>AI-Powered Insights</h2>
+            
+            <div className="metrics-section">
+                <h3>Application Metrics</h3>
+                <div className="metrics-grid">
+                    <div className="metric-card">
+                        <h4>Response Rate</h4>
+                        <p>{formatMetric(insights.metrics.response_rate)}%</p>
                     </div>
-                </div>
-                <div className="metric-card">
-                    <h3>Interview Success</h3>
-                    <div className="metric-value">
-                        {formatPercentage(recommendations.metrics.interview_rate)}
+                    <div className="metric-card">
+                        <h4>Interview Rate</h4>
+                        <p>{formatMetric(insights.metrics.interview_rate)}%</p>
                     </div>
-                </div>
-                <div className="metric-card">
-                    <h3>Overall Success</h3>
-                    <div className="metric-value">
-                        {formatPercentage(recommendations.metrics.success_rate)}
+                    <div className="metric-card">
+                        <h4>Success Rate</h4>
+                        <p>{formatMetric(insights.metrics.success_rate)}%</p>
+                    </div>
+                    <div className="metric-card">
+                        <h4>Market Alignment</h4>
+                        <p>{formatMetric(insights.metrics.market_alignment)}%</p>
                     </div>
                 </div>
             </div>
 
             <div className="recommendations-section">
-                <h2>AI Recommendations</h2>
-                <div className="recommendations-list">
-                    {recommendations.recommendations.split('\n\n').map((rec, index) => (
-                        <div key={index} className="recommendation-card">
-                            <div className="recommendation-type">
-                                {rec.split(':')[0]}
-                            </div>
-                            <div className="recommendation-content">
-                                {rec.split(':')[1]}
-                            </div>
-                        </div>
-                    ))}
+                <h3>AI Recommendation</h3>
+                <div className="recommendation-card">
+                    <p>{insights.recommendations}</p>
                 </div>
             </div>
         </div>

@@ -13,3 +13,5 @@ dj-database-url==2.1.0
 
 # Security
 django-filter==23.5 
+scikit-learn>=1.0.2
+numpy>=1.21.0
