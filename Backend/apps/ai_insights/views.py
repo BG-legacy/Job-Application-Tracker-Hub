@@ -28,6 +28,36 @@ class AIInsightView(APIView):
             'recommendations': insights['recommendations']
         })
 
+    def post(self, request):
+        """Generate new insights for the user"""
+        try:
+            analysis_service = AIAnalysisService()
+            insights = analysis_service.analyze_application_trends(request.user)
+            
+            # Get most recent application
+            recent_application = Application.objects.filter(user=request.user).order_by('-date_applied').first()
+            
+            if recent_application:
+                # Create new insight
+                insight = AIInsight.objects.create(
+                    application=recent_application,
+                    trend_analysis=str(insights['metrics']),
+                    recommendations=insights['recommendations']
+                )
+                
+                serializer = AIInsightSerializer(insight)
+                return Response(serializer.data, status=201)
+            
+            return Response({
+                'error': 'No applications found to generate insights'
+            }, status=400)
+            
+        except Exception as e:
+            logger.error(f"Error generating insights: {str(e)}")
+            return Response({
+                'error': 'Failed to generate insights'
+            }, status=500)
+
 class ApplicationInsightView(APIView):
     # Ensure only authenticated users can access
     permission_classes = [IsAuthenticated]

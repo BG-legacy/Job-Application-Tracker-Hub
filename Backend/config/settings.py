@@ -1,5 +1,8 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()  # Load environment variables from .env file
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -183,4 +186,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'your-email@example.com'
 EMAIL_HOST_PASSWORD = 'your-app-specific-password'
 DEFAULT_FROM_EMAIL = 'Job Tracker <no-reply@jobtracker.com>'
+
+# ChatGPT Integration
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
 

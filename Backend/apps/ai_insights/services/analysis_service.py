@@ -6,14 +6,16 @@ from django.db.models import Count
 from django.utils import timezone
 from .job_market_service import JobMarketService
 from apps.applications.models import Application
+from .chatgpt_service import ChatGPTService
 
 class AIAnalysisService:
     def __init__(self):
         self.job_market_service = JobMarketService()
         self.model = RandomForestClassifier(n_estimators=100)
         self.scaler = StandardScaler()
+        self.chatgpt_service = ChatGPTService()
         
-    def analyze_application_trends(self, user):
+    async def analyze_application_trends(self, user):
         """Analyze user's job application trends and provide insights"""
         applications = Application.objects.filter(user=user)
         total_apps = applications.count()
@@ -41,6 +43,19 @@ class AIAnalysisService:
         market_service = JobMarketService()
         market_data = market_service.get_market_trends()
 
+        # Prepare data for ChatGPT
+        user_data = {
+            'total_apps': total_apps,
+            'response_rate': response_rate,
+            'interview_rate': interview_rate,
+            'success_rate': success_rate,
+            'recent_titles': [app.job_title for app in applications[:5]],
+            'skills': self._extract_skills_from_applications(applications)
+        }
+
+        # Get ChatGPT insights
+        chatgpt_insights = await self.chatgpt_service.generate_personalized_insights(user_data)
+
         return {
             'metrics': {
                 'total_apps': total_apps,
@@ -50,7 +65,8 @@ class AIAnalysisService:
                 'market_alignment': self._calculate_market_alignment(applications, market_data),
                 'skill_gaps': self._identify_skill_gaps(applications, market_data)
             },
-            'recommendations': recommendations[0] if recommendations else ""  # Return first recommendation as string
+            'recommendations': recommendations[0] if recommendations else "",
+            'chatgpt_insights': chatgpt_insights
         }
 
     def _calculate_response_rate(self, applications):
@@ -306,3 +322,11 @@ class AIAnalysisService:
         missing_skills = market_skills - user_skills
         
         return list(missing_skills)
+
+    def _extract_skills_from_applications(self, applications):
+        """Extract all unique skills from user's applications"""
+        skills = set()
+        for app in applications:
+            if app.job_description:
+                skills.update(self._extract_skills(app.job_description))
+        return list(skills)

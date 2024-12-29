@@ -194,3 +194,78 @@ ALTER TABLE teams_team
 -- Add index
 CREATE INDEX teams_team_created_by_id_idx ON teams_team(created_by_id);
 
+-- Create User Profile Table
+CREATE TABLE user_profiles (
+    profile_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL UNIQUE,
+    current_title VARCHAR(255),
+    years_experience INTEGER,
+    industry VARCHAR(100),
+    desired_role VARCHAR(255),
+    desired_salary_range VARCHAR(50),
+    location_preference VARCHAR(100),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Create Career Goals Table
+CREATE TABLE career_goals (
+    goal_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    goal_type VARCHAR(50) NOT NULL, -- e.g., 'short_term', 'long_term'
+    description TEXT NOT NULL,
+    target_date DATE,
+    status VARCHAR(20) DEFAULT 'In Progress',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Create User Preferences Table
+CREATE TABLE user_preferences (
+    preference_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL UNIQUE,
+    notification_frequency VARCHAR(20) DEFAULT 'daily',
+    email_alerts BOOLEAN DEFAULT true,
+    theme_preference VARCHAR(20) DEFAULT 'light',
+    language_preference VARCHAR(10) DEFAULT 'en',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Create User Insights Table
+CREATE TABLE user_insights (
+    insight_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    insight_type VARCHAR(50) NOT NULL, -- e.g., 'career_path', 'skill_development'
+    content TEXT NOT NULL,
+    relevance_score DECIMAL(3,2),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Add indexes for better performance
+CREATE INDEX idx_user_profiles_user_id ON user_profiles(user_id);
+CREATE INDEX idx_career_goals_user_id ON career_goals(user_id);
+CREATE INDEX idx_user_insights_user_id ON user_insights(user_id);
+CREATE INDEX idx_career_goals_status ON career_goals(status);
+CREATE INDEX idx_user_insights_type ON user_insights(insight_type);
+
+-- Add updated_at triggers for tables that need it
+CREATE TRIGGER update_user_profiles_updated_at
+    BEFORE UPDATE ON user_profiles
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_career_goals_updated_at
+    BEFORE UPDATE ON career_goals
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_user_preferences_updated_at
+    BEFORE UPDATE ON user_preferences
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
