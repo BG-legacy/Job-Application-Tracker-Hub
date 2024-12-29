@@ -2,7 +2,8 @@ export const formatDate = (dateString) => {
     if (!dateString) return 'No date provided';
     
     try {
-        const date = new Date(dateString);
+        // Ensure we're working with UTC dates
+        const date = new Date(dateString + 'T00:00:00Z');
         if (isNaN(date.getTime())) return 'Invalid date';
         
         // Format: "Dec 15, 2023"

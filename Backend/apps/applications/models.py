@@ -33,10 +33,14 @@ class Application(models.Model):
         return f"{self.company_name} - {self.position}" 
 
     def save(self, *args, **kwargs):
-        # Ensure date_applied is a date object
+        # Ensure date_applied is a date object in UTC
         if isinstance(self.date_applied, str):
             try:
-                self.date_applied = timezone.datetime.strptime(self.date_applied, '%Y-%m-%d').date()
+                # Parse the date in UTC
+                self.date_applied = timezone.datetime.strptime(
+                    self.date_applied, 
+                    '%Y-%m-%d'
+                ).date()
             except ValueError:
                 self.date_applied = timezone.now().date()
         super().save(*args, **kwargs)

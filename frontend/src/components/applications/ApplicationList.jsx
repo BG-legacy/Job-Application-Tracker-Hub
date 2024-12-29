@@ -60,10 +60,16 @@ const ApplicationList = () => {
         return applications.filter(app => {
             if (!app.date_applied) return false;
             
-            const appDate = new Date(app.date_applied);
-            return appDate.getDate() === date &&
-                   appDate.getMonth() === currentDate.getMonth() &&
-                   appDate.getFullYear() === currentDate.getFullYear();
+            const appDate = new Date(app.date_applied + 'T00:00:00Z');
+            const compareDate = new Date(Date.UTC(
+                currentDate.getFullYear(),
+                currentDate.getMonth(),
+                date
+            ));
+            
+            return appDate.getUTCDate() === compareDate.getUTCDate() &&
+                   appDate.getUTCMonth() === compareDate.getUTCMonth() &&
+                   appDate.getUTCFullYear() === compareDate.getUTCFullYear();
         });
     };
 
