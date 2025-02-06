@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .metric { margin: 10px 0; }
+        .recommendations { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h2>Hello {{ username }},</h2>
+    
+    <p>Here are your latest job application insights:</p>
+    
+    <div class="metrics">
+        <div class="metric">
+            <strong>Total Applications:</strong> {{ metrics.total_apps }}
+        </div>
+        <div class="metric">
+            <strong>Response Rate:</strong> {{ metrics.response_rate|floatformat:1 }}%
+        </div>
+        <div class="metric">
+            <strong>Interview Rate:</strong> {{ metrics.interview_rate|floatformat:1 }}%
+        </div>
+    </div>
+
+    <div class="recommendations">
+        <h3>Recommendations:</h3>
+        <p>{{ recommendations|linebreaks }}</p>
+    </div>
+
+    <p>Keep up the great work!</p>
+</body>
+</html> 

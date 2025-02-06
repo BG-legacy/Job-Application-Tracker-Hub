@@ -1,0 +1,138 @@
+.email-integration {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.email-integration h2 {
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.connection-status {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: #f5f5f5;
+    border-radius: 4px;
+}
+
+.status {
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.status.connected {
+    background: #e6f4ea;
+    color: #1e7e34;
+}
+
+.status.disconnected {
+    background: #feeced;
+    color: #dc3545;
+}
+
+.integration-actions {
+    margin: 2rem 0;
+    display: flex;
+    gap: 1rem;
+}
+
+.connect-button, .disconnect-button, .sync-button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.connect-button {
+    background: #1a73e8;
+    color: white;
+}
+
+.connect-button:hover {
+    background: #1557b0;
+}
+
+.disconnect-button {
+    background: #dc3545;
+    color: white;
+}
+
+.disconnect-button:hover {
+    background: #c82333;
+}
+
+.sync-button {
+    background: #28a745;
+    color: white;
+}
+
+.sync-button:hover {
+    background: #218838;
+}
+
+.integration-info {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.permissions-info {
+    margin-top: 1rem;
+}
+
+.permissions-info ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.permissions-info li {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.permissions-info li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #28a745;
+}
+
+.error-message {
+    background: #feeced;
+    color: #dc3545;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.error-message button {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+} 

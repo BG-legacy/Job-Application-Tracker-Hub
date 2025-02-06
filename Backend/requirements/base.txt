@@ -1,0 +1,17 @@
+# Core dependencies
+Django==4.2.0
+djangorestframework==3.14.0
+psycopg2-binary==2.9.6
+python-dotenv==1.0.0
+django-cors-headers==4.3.0
+PyJWT==2.8.0
+celery>=5.3.0
+requests>=2.31.0
+
+# Database
+dj-database-url==2.1.0
+
+# Security
+django-filter==23.5 
+scikit-learn>=1.0.2
+numpy>=1.21.0

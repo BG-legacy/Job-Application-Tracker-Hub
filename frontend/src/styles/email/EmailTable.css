@@ -1,0 +1,141 @@
+.email-table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin: 20px 0;
+}
+
+.email-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.email-table th {
+    background-color: #f8f9fa;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    cursor: pointer;
+    user-select: none;
+}
+
+.email-table th:hover {
+    background-color: #e9ecef;
+}
+
+.email-table td {
+    padding: 12px;
+    border-top: 1px solid #dee2e6;
+    color: #212529;
+}
+
+.email-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-badge.applied {
+    background-color: #E3F2FD;
+    color: #1976D2;
+}
+
+.status-badge.interview {
+    background-color: #E8F5E9;
+    color: #2E7D32;
+}
+
+.status-badge.rejected {
+    background-color: #FFEBEE;
+    color: #C62828;
+}
+
+.status-badge.offer {
+    background-color: #F3E5F5;
+    color: #7B1FA2;
+}
+
+.status-badge.unknown {
+    background-color: #EEEEEE;
+    color: #757575;
+}
+
+.select-btn {
+    padding: 6px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.select-btn:hover {
+    background-color: #0056b3;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.pagination button {
+    padding: 8px 16px;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.pagination button:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #e9ecef;
+}
+
+.pagination span {
+    color: #6c757d;
+}
+
+.job-title-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.job-title-cell .confidence-badge {
+    color: #4CAF50;
+    font-size: 12px;
+}
+
+.company-cell {
+    display: flex;
+    flex-direction: column;
+}
+
+.company-cell .email-domain {
+    color: #666;
+    font-size: 12px;
+}
+
+.date-cell {
+    display: flex;
+    flex-direction: column;
+}
+
+.date-cell .days-ago {
+    color: #666;
+    font-size: 12px;
+} 
