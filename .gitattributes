@@ -1,0 +1,10 @@
+# Force GitHub to recognize JavaScript files
+*.js linguist-language=JavaScript
+build/static/js/*.js linguist-generated=false
+build/static/js/*.js linguist-vendored=false
+
+# Treat minified files as generated
+*.min.js linguist-generated=true
+
+# Exclude specific directories if needed
+# node_modules/* linguist-vendored=true 
